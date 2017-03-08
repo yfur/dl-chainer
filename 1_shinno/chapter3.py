@@ -5,6 +5,7 @@ from chainer import Link, Chain, ChainList
 import chainer.functions as F
 import chainer.links as L
 
+''' 3.2 '''
 # x1 = Variable(np.array([1]).astype(np.float32))
 # x2 = Variable(np.array([2]).astype(np.float32))
 # x3 = Variable(np.array([3]).astype(np.float32))
@@ -42,17 +43,45 @@ import chainer.links as L
 # z.backward()
 # print(x.grad)
 
-''' 3.2.3 '''
-h = L.Linear(3, 4)
-x = Variable(np.array(range(6)).astype(np.float32).reshape(2, 3))
-print(h.W.data)
-print(x.data)
-print()
-print(h.b.data)
-print()
-y = h(x)
-print(y.data)
+# h = L.Linear(3, 4)
+# x = Variable(np.array(range(6)).astype(np.float32).reshape(2, 3))
+# print(h.W.data)
+# print(x.data)
+# print()
+# print(h.b.data)
+# print()
+# y = h(x)
+# print(y.data)
+#
+# w = h.W.data
+# x0 = x.data
+# print(x0.dot(w.T) + h.b.data)
 
-w = h.W.data
-x0 = x.data
-print(x0.dot(w.T) + h.b.data)
+''' 3.3 '''
+class MyChain(Chain):
+    def __init__(self):
+        super(MyChain, self).__init__(
+            l1 = L.Linear(4, 3),
+            l2 = L.Linear(3, 3),
+        )
+
+    def __call__(self, x, y):
+        fv = self.fwd(x, y)
+        loss = F.mean_squared_error(fv, y)
+        return loss
+
+    def fwd(self, x, y):
+        return F.sigmoid(self.l1(x))
+
+''' 3.4 '''
+model = MyChain()
+optimizer = optimizers.SGD()
+optimizer.setup(model)
+
+x = Variable(np.array(range(8)).astype(np.float32).reshape(2, 4))
+y = Variable(np.array(range(6)).astype(np.float32).reshape(2, 3))
+
+model.zerograds()
+loss = model(x, y)
+loss.backward()
+optimizer.update()
