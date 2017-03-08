@@ -49,13 +49,18 @@ optimizer = optimizers.SGD()
 optimizer.setup(model)
 
 ''' 4. Learning '''
-for i in range(10000):
-    x = Variable(xtrain)
-    y = Variable(ytrain)
-    model.zerograds()
-    loss = model(x,y)
-    loss.backward()
-    optimizer.update()
+# batch
+n = 75
+bs = 25
+for j in range(5000):
+    sffindex = np.random.permutation(n)
+    for i in range(0, n, bs):
+        x = Variable(xtrain[sffindex[i:(i + bs) if (i + bs) < n else n]])
+        y = Variable(ytrain[sffindex[i:(i + bs) if (i + bs) < n else n]])
+        model.zerograds()
+        loss = model(x,y)
+        loss.backward()
+        optimizer.update()
 
 ''' 5. Testing '''
 xt = Variable(xtest, volatile='on')
